@@ -1,11 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.example.kenyanfoodrecognitionsystem"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.kenyanfoodrecognitionsystem"
@@ -51,6 +53,16 @@ android {
 
 dependencies {
 
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,6 +71,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.testing)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +85,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("androidx.compose.material:material-icons-extended")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+
+    // This is the dependency for Jetpack Compose Navigation for Android
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // This is for unit testing code that uses Kotlin coroutines
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation("org.mockito:mockito-core:5.3.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
+    androidTestImplementation("org.mockito:mockito-android:4.8.0")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+
 }
