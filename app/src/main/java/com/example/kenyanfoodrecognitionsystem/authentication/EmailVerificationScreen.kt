@@ -36,17 +36,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
-
+import com.example.kenyanfoodrecognitionsystem.authentication.view_models.EmailVerificationViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun EmailVerificationScreen(
     onBackClick: () -> Unit,
     onContinueClick: () -> Unit,
-    viewModel: EmailVerificationViewModel = viewModel()
 ) {
-
+    // This is the key change: create a ViewModelFactory to provide the FirebaseAuth instance.
+    val viewModel: EmailVerificationViewModel = viewModel(
+        factory = EmailVerificationViewModelFactory(FirebaseAuth.getInstance())
+    )
     val uiState by viewModel.uiState.collectAsState()
 
 
@@ -149,7 +154,6 @@ fun EmailVerificationScreen(
             Button(
                 onClick = {
                     viewModel.onContinueClick()
-                    // Immediately check the state to decide whether to navigate
                     if (uiState.isVerified) {
                         onContinueClick()
                     }
@@ -169,7 +173,7 @@ fun EmailVerificationScreen(
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
                     Text(
-                        text = if (uiState.isVerified) "Next" else "Confirm",
+                        text = if (uiState.isVerified) "Back to SignIn" else "Confirm",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -211,8 +215,20 @@ fun EmailVerificationScreen(
 @Preview
 @Composable
 fun EmailVerificationPreview(){
-   EmailVerificationScreen(
+    EmailVerificationScreen(
         onContinueClick = {},
         onBackClick = {}
-   )
+    )
+}
+
+// A factory class to create an instance of EmailVerificationViewModel
+// with the required FirebaseAuth dependency.
+class EmailVerificationViewModelFactory(private val auth: FirebaseAuth) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(EmailVerificationViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return EmailVerificationViewModel(auth) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
