@@ -76,6 +76,7 @@ fun AppNavigation(){
                         }
 
                 },
+                onGoogleSignInSuccess = {navController.navigate("HomeScreen")},
                 snackbarHostState = snackbarHostState // Pass the state to the screen
             )
         }
@@ -149,6 +150,7 @@ fun AppNavigation(){
 
                         }
                 },
+                onGoogleSignInSuccess = {navController.navigate("HomeScreen")},
                 snackbarHostState = snackbarHostState
             )
         }

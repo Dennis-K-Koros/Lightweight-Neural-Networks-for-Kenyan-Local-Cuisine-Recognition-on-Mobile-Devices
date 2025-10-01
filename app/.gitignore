@@ -1,1 +1,4 @@
 /build
+# Firebase/Google Configuration Files
+# This file is often environment-specific and contains sensitive keys.
+google-services.json

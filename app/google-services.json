@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "135592515816",
+    "firebase_url": "https://kenyafoodrecognitionsystem-default-rtdb.firebaseio.com",
     "project_id": "kenyafoodrecognitionsystem",
     "storage_bucket": "kenyafoodrecognitionsystem.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.kenyanfoodrecognitionsystem"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "135592515816-unvoq6i0get32k4oh8dk6278tk49qr04.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kenyanfoodrecognitionsystem",
+            "certificate_hash": "f757e1dbbdb5cbd2cce439261154c97ff681e01c"
+          }
+        },
+        {
+          "client_id": "135592515816-9m4oubil7crmlef4o1af7pqvmnn3ra59.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAzbkJ59zlI1MTzGYvxIFkR6Fxkyq1lDH0"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135592515816-9m4oubil7crmlef4o1af7pqvmnn3ra59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
