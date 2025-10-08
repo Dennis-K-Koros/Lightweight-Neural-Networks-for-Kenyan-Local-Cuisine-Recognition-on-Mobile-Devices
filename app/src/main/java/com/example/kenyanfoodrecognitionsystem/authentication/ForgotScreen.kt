@@ -108,7 +108,7 @@ fun ForgotScreen(
             )
 
             Text(
-                text = "Please either input your email or phone number",
+                text = "Please enter your email",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -118,11 +118,11 @@ fun ForgotScreen(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text("Email/Phone") },
+                label = { Text("Email") },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Mail,
-                        contentDescription = "Email/Phone Icon",
+                        contentDescription = "Email Icon",
                         modifier = Modifier.size(24.dp)
                     )
                 },
@@ -195,11 +195,3 @@ fun ForgotScreen(
 
 }
 
-@Preview
-@Composable
-fun ForgotPreview(){
-    ForgotScreen(
-        onBackClick = {},
-        onConfirmClick = {}
-    )
-}

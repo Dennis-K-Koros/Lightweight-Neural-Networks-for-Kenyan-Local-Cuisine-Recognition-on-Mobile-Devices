@@ -16,7 +16,9 @@ import com.example.kenyanfoodrecognitionsystem.authentication.SignInScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.SignUpScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.UserVerificationScreen
 import com.example.kenyanfoodrecognitionsystem.data_models.User
-import com.example.kenyanfoodrecognitionsystem.screens.HomeScreen
+import com.example.kenyanfoodrecognitionsystem.screens.HomeScreen.HomeScreen
+import com.example.kenyanfoodrecognitionsystem.screens.SettingsScreen
+
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -185,7 +187,7 @@ fun AppNavigation(){
         composable("PasswordChangeScreen"){
             PasswordChangeScreen(
                 onBackClick = { navController.popBackStack() },
-                onPasswordChangeClick = {}
+                onConfirmClick = {navController.navigate("SettingsScreen")}
             )
         }
 
@@ -194,6 +196,10 @@ fun AppNavigation(){
             HomeScreen()
         }
 
+        //Settings Screen
+        composable("SettingsScreen"){
+            SettingsScreen()
+        }
     }
 }
 

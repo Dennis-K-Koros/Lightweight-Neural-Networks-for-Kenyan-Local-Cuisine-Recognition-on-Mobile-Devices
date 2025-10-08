@@ -212,14 +212,6 @@ fun EmailVerificationScreen(
 }
 
 
-@Preview
-@Composable
-fun EmailVerificationPreview(){
-    EmailVerificationScreen(
-        onContinueClick = {},
-        onBackClick = {}
-    )
-}
 
 // A factory class to create an instance of EmailVerificationViewModel
 // with the required FirebaseAuth dependency.

@@ -14,48 +14,39 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
+import com.example.kenyanfoodrecognitionsystem.authentication.view_models.PasswordChangeViewModel
 
 @Composable
 fun PasswordChangeScreen(
     onBackClick: () -> Unit,
-    onPasswordChangeClick: () -> Unit
+    onConfirmClick: () -> Unit,
+    viewModel: PasswordChangeViewModel = viewModel()
 ){
-
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confPass by remember { mutableStateOf("") }
-    var confPassVisible by remember { mutableStateOf(false) }
-
-    BoxWithConstraints (
+    val uiState by viewModel.uiState.collectAsState()
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-    ) {
-
+    ){
         val screenWidthPx: Int = constraints.maxWidth
         val screenHeightPx: Int = constraints.maxHeight
 
@@ -89,7 +80,7 @@ fun PasswordChangeScreen(
             )
         }
 
-        Column(
+        Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(30.dp),
@@ -106,13 +97,13 @@ fun PasswordChangeScreen(
             Spacer(Modifier.height(160.dp))
 
             Text(
-                text = "Password Reset",
+                text = "Password Change",
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp)
             )
 
             Text(
-                text = "Please enter your new password and confirm it",
+                text = "Please enter your email",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -120,14 +111,13 @@ fun PasswordChangeScreen(
             Spacer(Modifier.height(20.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                value = uiState.email,
+                onValueChange = { viewModel.onEmailChange(it) },
+                label = { Text("Email") },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Password Icon",
+                        imageVector = Icons.Default.Mail,
+                        contentDescription = "Email",
                         modifier = Modifier.size(24.dp)
                     )
                 },
@@ -135,82 +125,64 @@ fun PasswordChangeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(25.dp),
-
-                trailingIcon = {
-                    val image = if (passwordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-                    val description = if (passwordVisible) "Hide password" else "Show password"
-
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, contentDescription = description)
-                    }
-                }
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = confPass,
-                onValueChange = { confPass = it },
-                label = { Text("Confirm Password") },
-                visualTransformation = if (confPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Confirm Password Icon",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(25.dp),
-
-                trailingIcon = {
-                    val image = if (confPassVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-                    val description = if (confPassVisible) "Hide password" else "Show password"
-
-                    IconButton(onClick = { confPassVisible = !confPassVisible }) {
-                        Icon(imageVector = image, contentDescription = description)
-                    }
-                }
-            )
-
-            Spacer(Modifier.height(20.dp))
+            // Display success or error messages
+            uiState.successMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Green,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            uiState.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
 
             Button(
-                onClick = onPasswordChangeClick,
+                onClick = {
+                    viewModel.onConfirmClick()
+                    // Immediately check the state to decide whether to navigate
+                    if (uiState.emailSent) {
+                        onConfirmClick()
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                    .height(50.dp)
+                    .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF10DAE9),
                     contentColor = Color.White
                 ),
-                shape = RoundedCornerShape(25.dp)
+                shape = RoundedCornerShape(25.dp),
+                enabled = !uiState.isLoading
             ) {
-
-                Text(
-                    text = "Reset Password",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = if (uiState.emailSent) "Back to Settings" else "Confirm",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
 
             }
-
         }
-
     }
 
-}
-
-@Preview
-@Composable
-fun PasswordChangePreview(){
-    PasswordChangeScreen(
-        onBackClick = {},
-        onPasswordChangeClick = {}
-    )
 }
