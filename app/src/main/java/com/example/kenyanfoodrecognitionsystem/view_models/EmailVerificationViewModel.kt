@@ -1,4 +1,4 @@
-package com.example.kenyanfoodrecognitionsystem.authentication.view_models
+package com.example.kenyanfoodrecognitionsystem.view_models
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -33,14 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.EmailVerificationViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.EmailVerificationViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable

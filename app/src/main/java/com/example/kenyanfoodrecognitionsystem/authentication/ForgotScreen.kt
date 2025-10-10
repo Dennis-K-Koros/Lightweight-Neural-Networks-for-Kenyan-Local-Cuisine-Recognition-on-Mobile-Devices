@@ -29,12 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.ForgotPasswordViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.ForgotPasswordViewModel
 
 @Composable
 fun ForgotScreen(

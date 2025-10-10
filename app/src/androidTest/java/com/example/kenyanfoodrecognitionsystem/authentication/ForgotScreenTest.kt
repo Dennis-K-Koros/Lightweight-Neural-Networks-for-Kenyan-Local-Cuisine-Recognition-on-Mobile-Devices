@@ -6,8 +6,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.ForgotPasswordUiState
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.ForgotPasswordViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.ForgotPasswordUiState
+import com.example.kenyanfoodrecognitionsystem.view_models.ForgotPasswordViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertTrue
 import org.junit.Before

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.PasswordChangeViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.PasswordChangeViewModel
 
 @Composable
 fun PasswordChangeScreen(
