@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        mlModelBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -102,5 +103,18 @@ dependencies {
 
     androidTestImplementation("org.mockito:mockito-android:4.8.0")
     androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+
+    // --- TensorFlow Lite Dependencies ---
+    // Core TFLite Support for image and buffer utilities
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+    // Core TFLite Runtime (needed for CPU inference)
+    implementation("org.tensorflow:tensorflow-lite:2.16.1")
+
+    // TFLite GPU delegate (optional, for acceleration)
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
+
+    // TFLite Metadata (needed if you use generated model code)
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
 
 }

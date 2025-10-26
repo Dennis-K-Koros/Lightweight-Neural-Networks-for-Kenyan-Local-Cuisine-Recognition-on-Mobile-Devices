@@ -6,9 +6,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.kenyanfoodrecognitionsystem.authentication.AuthManager
 import com.example.kenyanfoodrecognitionsystem.authentication.EditingScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.EmailVerificationScreen
@@ -19,6 +21,7 @@ import com.example.kenyanfoodrecognitionsystem.authentication.SignInScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.SignUpScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.UserVerificationScreen
 import com.example.kenyanfoodrecognitionsystem.data_models.User
+import com.example.kenyanfoodrecognitionsystem.screens.CaptureScreen
 import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.HomeScreen
 import com.example.kenyanfoodrecognitionsystem.screens.SettingsScreen
 import com.google.firebase.Firebase
@@ -215,6 +218,18 @@ fun AppNavigation(){
                 onUpdateSuccess = {navController.navigate("SettingsScreen")},
                 onGoogleReAuthRequired = {},
                 snackbarHostState = snackbarHostState
+            )
+        }
+
+        //Capture Screen
+        composable(
+            route = "CaptureScreen/{source}", // Define the route with the argument
+            arguments = listOf(navArgument("source") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: "none"
+            CaptureScreen(
+                initialSource = source, // Pass the source to the CaptureScreen
+                onNavigateBack = navController::popBackStack
             )
         }
     }

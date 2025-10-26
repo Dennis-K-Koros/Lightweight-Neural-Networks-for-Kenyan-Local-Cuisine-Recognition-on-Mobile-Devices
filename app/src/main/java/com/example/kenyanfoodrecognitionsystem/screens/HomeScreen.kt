@@ -82,7 +82,6 @@ val BackgroundLight = Color(0xFFFFFFFF)
 // --- Navigation Destinations for the App NavGraph ---
 const val HOME_ROUTE = "HomeScreen"
 const val SETTINGS_ROUTE = "SettingsScreen"
-const val CAPTURE_ROUTE = "capture"
 
 /**
  * Main Composable for the Home Screen.
@@ -104,7 +103,6 @@ fun HomeScreen(
     // State management for UI interactions
     val today = remember { LocalDate.now() }
     var selectedDate by remember { mutableStateOf(today) }
-    var showCaptureOptions by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = BackgroundLight,
@@ -155,21 +153,6 @@ fun HomeScreen(
         }
     }
 
-    // Capture Options Dialog
-    if (showCaptureOptions) {
-        CaptureOptionsDialog(
-            onDismiss = { showCaptureOptions = false },
-            onCamera = {
-                showCaptureOptions = false
-                onNavigate(CAPTURE_ROUTE)
-            },
-            onGallery = {
-                showCaptureOptions = false
-                // Handle gallery pick action
-                // In a real app, this would launch the image picker
-            }
-        )
-    }
 }
 
 /**
@@ -566,9 +549,11 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
             onDismiss = { showCaptureOptions = false },
             onCamera = {
                 showCaptureOptions = false
+                onNavigate("CaptureScreen/camera")
             },
             onGallery = {
                 showCaptureOptions = false
+                onNavigate("CaptureScreen/gallery")
             }
         )
     }

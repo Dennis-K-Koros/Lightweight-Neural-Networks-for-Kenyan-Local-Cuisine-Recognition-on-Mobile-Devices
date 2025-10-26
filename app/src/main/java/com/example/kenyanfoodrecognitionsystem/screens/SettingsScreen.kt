@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.BackgroundLight
-import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.CAPTURE_ROUTE
 import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.CaptureOptionsDialog
 import com.example.kenyanfoodrecognitionsystem.view_models.DeleteAccountStatus
 import com.example.kenyanfoodrecognitionsystem.view_models.ReAuthCodes
@@ -196,7 +195,6 @@ fun SettingsScreen(
     val userProfileImageUrl = user?.profileImageUrl
 
     // State management for UI interactions
-    var showCaptureOptions by remember { mutableStateOf(false)}
     var selectedTheme by remember { mutableStateOf(AppTheme.DEFAULT) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -710,7 +708,6 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
             onDismiss = { showCaptureOptions = false },
             onCamera = {
                 showCaptureOptions = false
-                onNavigate(CAPTURE_ROUTE)
             },
             onGallery = {
                 showCaptureOptions = false
