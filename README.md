@@ -15,17 +15,18 @@ This repository focuses on the mobile application integration. The following ML 
 
 ### Model Details (To Be Added)
 The final model will be deployed in a TFLite format. This section will eventually contain:
-- Architecture: [MobileNetV2]
-- Input Size: [224x224 pixels]
+- Architecture: MobileNetV2
+- Input Size: 224x224 pixels
 - Model Size: 
-- Target Dishes: [bhajia, chapati, githeri, kachumbari, kukuchoma, mandazi, masalachips, matoke, mukimo, nyamachoma, pilau, sukumawiki, ugali]
+- Target Dishes: bhajia, chapati, githeri, kachumbari, kukuchoma, mandazi, masalachips, matoke, mukimo, nyamachoma, pilau, sukumawiki, ugali
 
 Dataset
 The model will be trained on a custom dataset of Kenyan cuisines.
 
-- Source: []
+- Source:
 
 ## 🗂️ Repository Structure
+```bash
 .
 ├── app/                            ← Android / mobile app (Kotlin) integration
 ├── gradle/                         
@@ -37,6 +38,7 @@ The model will be trained on a custom dataset of Kenyan cuisines.
 ├── gradlew.bat
 ├── settings.gradle.kts
 └── README.md
+```
 
 ## 🚀 Getting Started
 
