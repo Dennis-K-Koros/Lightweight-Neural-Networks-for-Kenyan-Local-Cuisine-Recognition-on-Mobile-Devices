@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,9 +42,6 @@ android {
     buildFeatures {
         compose = true
         mlModelBinding = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -116,5 +114,12 @@ dependencies {
 
     // TFLite Metadata (needed if you use generated model code)
     implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
+
+    // Room components
+    implementation ("androidx.room:room-runtime:2.6.1")
+    ksp ("androidx.room:room-compiler:2.6.1")
+
+    // Optional: Kotlin Extensions and Coroutines support for Room
+    implementation ("androidx.room:room-ktx:2.6.1")
 
 }

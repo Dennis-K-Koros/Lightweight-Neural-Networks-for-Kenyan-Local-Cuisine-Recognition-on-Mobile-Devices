@@ -1,7 +1,8 @@
 [versions]
 agp = "8.13.0"
-kotlin = "2.2.20"
+kotlin = "2.1.0"
 coreKtx = "1.17.0"
+ksp = "2.1.0-1.0.29"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -44,4 +45,5 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

@@ -54,8 +54,8 @@ fun classifyFoodImageManual(context: Context, bitmap: Bitmap): String {
 
     // 7. Define labels
     val labels = listOf(
-        "bhaji", "chapati", "githeri", "kachumbari", "kukuchoma", "mandazi",
-        "masalachips", "matoke", "mukimo", "nyamachoma", "pilau", "sukumawiki", "ugali"
+        "bhaji", "chapati", "githeri", "kachumbari", "kukuchoma", "Mandazi",
+        "masalachips", "Matoke", "Mukimo", "Nyamachoma", "pilau", "Sukuma Wiki", "Ugali"
     )
 
     // 8. Find the maximum probability

@@ -62,6 +62,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.kenyanfoodrecognitionsystem.data.AppDatabase
+import com.example.kenyanfoodrecognitionsystem.data.Food
 import com.example.kenyanfoodrecognitionsystem.utils.classifyFoodImageManual
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,6 +87,8 @@ fun CaptureScreen(
     // State for the prediction result
     var predictionResult by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+
+    var nutritionInfo by remember { mutableStateOf<Food?>(null) }
 
     // --- Activity Result Launchers ---
 
@@ -192,6 +196,7 @@ fun CaptureScreen(
                     if (imageBitmap != null && !isLoading) {
                         isLoading = true
                         predictionResult = null
+                        nutritionInfo = null
                         coroutineScope.launch {
                             val result = withContext(Dispatchers.Default) {
                                 try {
@@ -202,6 +207,22 @@ fun CaptureScreen(
                                 }
                             }
                             predictionResult = result
+
+                            // ...
+                            // Fetch nutrition info from Room
+                            if (!result.startsWith("Error")) {
+                                val foodName = extractFoodName(result)
+                                val db = AppDatabase.getDatabase(context)
+                                val dao = db.foodDao()
+                                val food = withContext(Dispatchers.IO) {
+                                    // 2. Try EXACT match first:
+                                    dao.getFoodByName(foodName)
+                                    // 3. Fallback to PARTIAL match:
+                                        ?: dao.getSimilarFoodByName(foodName)
+                                }
+                                nutritionInfo = food
+                            }
+
                             isLoading = false
                         }
                     }
@@ -263,6 +284,37 @@ fun CaptureScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
+            }
+
+            // --- Nutrition Info Card ---
+            if (nutritionInfo != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDF7)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(
+                            text = "Nutritional Information (per 100g)",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Energy: ${nutritionInfo!!.energy ?: "-"} kcal")
+                        Text("Protein: ${nutritionInfo!!.protein ?: "-"} g")
+                        Text("Fat: ${nutritionInfo!!.fat ?: "-"} g")
+                        Text("Carbohydrates: ${nutritionInfo!!.carbohydrates ?: "-"} g")
+                        Text("Fibre: ${nutritionInfo!!.fibre ?: "-"} g")
+                    }
+                }
+            } else if (predictionResult != null && !predictionResult!!.startsWith("Error")) {
+                Text(
+                    text = "⚠️ No nutrition data found for this food.",
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Divider(
@@ -349,5 +401,20 @@ fun Uri.toBitmap(context: Context): Bitmap? {
     } catch (e: Exception) {
         e.printStackTrace()
         null
+    }
+}
+
+fun extractFoodName(rawResult: String): String {
+    val trimmedResult = rawResult.trim()
+
+    // Find the index of the last opening parenthesis
+    val lastParenthesisIndex = trimmedResult.lastIndexOf('(')
+
+    return if (lastParenthesisIndex > 0) {
+        // Return the substring from the start up to the parenthesis, and trim any new whitespace
+        trimmedResult.substring(0, lastParenthesisIndex).trim()
+    } else {
+        // If no parenthesis is found, return the trimmed result as-is
+        trimmedResult
     }
 }
