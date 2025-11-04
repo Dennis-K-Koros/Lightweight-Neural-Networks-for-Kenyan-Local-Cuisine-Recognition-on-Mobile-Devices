@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -656,11 +657,10 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(navBarHeight + 30.dp) // Extra space for FAB float
+            .height(navBarHeight + 40.dp)
             .background(Color.Transparent),
         contentAlignment = Alignment.BottomCenter
     ) {
-
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -694,12 +694,19 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
 
         // Floating Action Button (FAB) - Camera icon
         FloatingActionButton(
-            onClick = { showCaptureOptions = true},
+            onClick = { showCaptureOptions = true },
             shape = CircleShape,
             containerColor = Color.Black,
-            modifier = Modifier.offset(y = (-40).dp).size(84.dp)
+            modifier = Modifier
+                .offset(y = (-40).dp)
+                .size(84.dp)
         ) {
-            Icon(Icons.Filled.CameraAlt, contentDescription = "Capture Food", modifier = Modifier.size(50.dp),tint = Color.White)
+            Icon(
+                Icons.Filled.CameraAlt,
+                contentDescription = "Capture Food",
+                modifier = Modifier.size(50.dp),
+                tint = Color.White
+            )
         }
     }
 
@@ -708,13 +715,18 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
             onDismiss = { showCaptureOptions = false },
             onCamera = {
                 showCaptureOptions = false
+                onNavigate("CaptureScreen/camera")
             },
             onGallery = {
                 showCaptureOptions = false
+                onNavigate("CaptureScreen/gallery")
+            },
+            onTextInput = {
+                showCaptureOptions = false
+                onNavigate("TextInputScreen")
             }
         )
     }
-
 }
 
 /**
@@ -749,11 +761,15 @@ fun NavItem(
     }
 }
 
+/**
+ * Dialog that pops up when the FAB is clicked, offering capture options.
+ */
 @Composable
 fun CaptureOptionsDialog(
     onDismiss: () -> Unit,
     onCamera: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    onTextInput: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -786,7 +802,18 @@ fun CaptureOptionsDialog(
                     Text("Select from Gallery", color = CyanPrimary)
                 }
 
-                // Add extra space before the cancel button
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedButton(
+                    onClick = onTextInput,
+                    modifier = Modifier.fillMaxWidth(),
+                    border = BorderStroke(1.dp, Blue)
+                ) {
+                    Icon(Icons.Default.TextFields, contentDescription = null, tint = Blue)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Discover Through Text Input", color = Blue)
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(onClick = onDismiss) {
@@ -797,6 +824,7 @@ fun CaptureOptionsDialog(
         shape = RoundedCornerShape(20.dp),
         containerColor = BackgroundLight
     )
+
 
 }
 

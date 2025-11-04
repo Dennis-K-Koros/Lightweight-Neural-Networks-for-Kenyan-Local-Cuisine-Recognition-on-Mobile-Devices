@@ -1,5 +1,6 @@
 package com.example.kenyanfoodrecognitionsystem.screens.Homescreen
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -56,21 +58,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.kenyanfoodrecognitionsystem.data.AppDatabase
+import com.example.kenyanfoodrecognitionsystem.data.MealHistory
+import com.example.kenyanfoodrecognitionsystem.screens.Blue
+import com.example.kenyanfoodrecognitionsystem.utils.ImageUtils
+import com.example.kenyanfoodrecognitionsystem.view_models.MealHistoryViewModel
 import com.example.kenyanfoodrecognitionsystem.view_models.UserViewModel
 import java.time.LocalDate
 import java.time.Month
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -83,6 +95,11 @@ val BackgroundLight = Color(0xFFFFFFFF)
 const val HOME_ROUTE = "HomeScreen"
 const val SETTINGS_ROUTE = "SettingsScreen"
 
+fun provideMealHistoryViewModel(context: Context): MealHistoryViewModel {
+    val dao = AppDatabase.getDatabase(context).mealHistoryDao()
+    return MealHistoryViewModel(dao)
+}
+
 /**
  * Main Composable for the Home Screen.
  * @param userName The name of the currently logged-in user.
@@ -94,6 +111,17 @@ fun HomeScreen(
     onNavigate: (String) -> Unit,
     userViewModel: UserViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val mealHistoryViewModel: MealHistoryViewModel = viewModel(factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            @Suppress("UNCHECKED_CAST")
+            return MealHistoryViewModel(AppDatabase.getDatabase(context).mealHistoryDao()) as T
+        }
+    })
+
+    // 2. Collect the Meal History list as Compose State
+    val mealHistoryList by mealHistoryViewModel.mealHistory.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     // 1. Observe the user state from the ViewModel
     val user by userViewModel.currentUser.collectAsState()
@@ -103,6 +131,15 @@ fun HomeScreen(
     // State management for UI interactions
     val today = remember { LocalDate.now() }
     var selectedDate by remember { mutableStateOf(today) }
+
+    val targetDateString = remember(selectedDate) {
+        selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    }
+
+
+    val filteredMealsForSelectedDate = remember(mealHistoryList, targetDateString) {
+        mealHistoryList.filter { it.dateString == targetDateString }
+    }
 
     Scaffold(
         containerColor = BackgroundLight,
@@ -149,10 +186,15 @@ fun HomeScreen(
                 )
             }
 
-            item { RecentHistoryContent() }
+            item {
+                RecentHistoryContent(
+                    selectedDate = selectedDate,
+                    meals = filteredMealsForSelectedDate,
+                    isLoading = false
+                )
+            }
         }
     }
-
 }
 
 /**
@@ -228,21 +270,22 @@ fun HomeHeader(userName: String, userProfileImageUrl: String?) {
 @Composable
 fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
     val today = remember { LocalDate.now() }
-    // Calculate the start of the week for the selected date (not just today)
+    // Calculate the start of the week for the selected date
     val startOfWeek = remember(selectedDate) {
         selectedDate.minusDays(selectedDate.dayOfWeek.value - 1L)
     }
     val weekDays = remember(startOfWeek) { (0L..6L).map { startOfWeek.plusDays(it) } }
 
+    // FIXED: Check if the first day of next week is after today
     val nextWeekStart = startOfWeek.plusWeeks(1)
-    val isFutureWeek = nextWeekStart.isAfter(today.minusDays(today.dayOfWeek.value.toLong()))
+    val isFutureWeek = nextWeekStart.isAfter(today)
 
     var expanded by remember { mutableStateOf(false) }
     val currentMonth = selectedDate.month
     val currentYear = selectedDate.year
 
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        // Month Selector Dropdown - Functional with current month
+        // Month Selector Dropdown
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
@@ -282,9 +325,7 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                // Filter months to prevent selecting a month/year combination in the future
                 Month.entries.forEach { month ->
-                    // Logic to check if the 1st of this month is equal to or before today
                     val checkDate = LocalDate.of(currentYear, month, 1)
                     val isFutureMonth = checkDate.isAfter(today.withDayOfMonth(1))
 
@@ -292,7 +333,6 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                         DropdownMenuItem(
                             text = { Text(month.getDisplayName(TextStyle.FULL, Locale.getDefault())) },
                             onClick = {
-                                // Keep the current year but change the month
                                 val newDate = LocalDate.of(currentYear, month, 1)
                                     .withDayOfMonth(minOf(selectedDate.dayOfMonth, month.length(selectedDate.isLeapYear)))
                                 onDateSelected(newDate)
@@ -336,7 +376,7 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                 fontWeight = FontWeight.SemiBold
             )
 
-            // Next Week Button
+            // Next Week Button - FIXED
             IconButton(
                 onClick = {
                     val nextWeekDate = selectedDate.plusWeeks(1)
@@ -348,12 +388,13 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                 Icon(
                     imageVector = Icons.Filled.ChevronRight,
                     contentDescription = "Next Week",
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(28.dp),
+                    tint = if (isFutureWeek) Color.Gray else Color.Black
                 )
             }
         }
 
-        // Week Day/Date Row - Displaying the current week's dates
+        // Week Day/Date Row
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -361,7 +402,6 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
             weekDays.forEach { date ->
                 val isSelected = date.isEqual(selectedDate)
                 val isToday = date.isEqual(today)
-                // Disable dates in the future within the displayed week
                 val isClickable = !date.isAfter(today)
                 val backgroundColor = when {
                     isSelected -> OrangeAccent
@@ -369,7 +409,7 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                     else -> Color.Transparent
                 }
                 val textColor = Color.Black
-                val dayTextColor =Color.Black
+                val dayTextColor = Color.Black
 
                 Column(
                     modifier = Modifier
@@ -386,7 +426,7 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background( Color.White),
+                            .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -403,7 +443,7 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background( Color.Gray.copy(alpha = 0.2f)),
+                            .background(Color.Gray.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -420,57 +460,99 @@ fun WeeklyCalendar(selectedDate: LocalDate, onDateSelected: (LocalDate) -> Unit)
 }
 
 /**
- * Recent Classification History Section - Called within LazyColumn scope.
+ * Recent Classification History Section - Shows real meal data from database
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun RecentHistoryContent() {
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
-        Text(
-            text = "Scan History",
-            fontSize = 18.sp,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-    }
+private fun RecentHistoryContent(
+    selectedDate: LocalDate,
+    meals: List<MealHistory>,
+    isLoading: Boolean
+) {
+    val context = LocalContext.current
 
-    // Mock history items (expandable for real data)
-    val historyItems = listOf(
-        "Ugali (Dinner)", "Mandazi (Breakfast)", "Samosa (Snack)", "Chips Masala (Lunch)",
-        "Githeri (Dinner)", "Mukimo (Lunch)", "Chapati (Breakfast)", "Sukuma Wiki (Dinner)",
-        "Pilau (Lunch)", "Bhajia (Snack)", "Nyama Choma (Dinner)", "Matoke (Lunch)","Beans (Dinner)",
-        "Kachumbari (Snack)"
-    )
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Meal History",
+                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            // Show date
+            Text(
+                text = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+    }
 
     Column(
         modifier = Modifier.padding(horizontal = 20.dp)
     ) {
-        historyItems.forEach { item ->
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        when {
+            isLoading -> {
+                // Loading state
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
+                    CircularProgressIndicator(color = CyanPrimary)
+                }
+            }
+            meals.isEmpty() -> {
+                // Empty state
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(CyanPrimary.copy(alpha = 0.2f))
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = item,
-                        fontSize = 16.sp,
-                        color = Color.Black
-                    )
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "📭",
+                            fontSize = 48.sp
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "No meals recorded",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Start tracking your meals today!",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+            else -> {
+                // Show meals
+                meals.forEach { meal ->
+                    MealHistoryCard(meal = meal)
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
@@ -481,10 +563,91 @@ private fun RecentHistoryContent() {
 }
 
 /**
+ * Individual meal history card
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun MealHistoryCard(meal: MealHistory) {
+    val context = LocalContext.current
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Meal Image
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(CyanPrimary.copy(alpha = 0.2f))
+            ) {
+                val bitmap = remember(meal.imageData) {
+                    ImageUtils.loadBitmapFromFile(meal.imageData)
+                }
+
+                if (bitmap != null) {
+                    AsyncImage(
+                        model = bitmap,
+                        contentDescription = "Meal image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Fallback icon
+                    Icon(
+                        imageVector = Icons.Default.Camera,
+                        contentDescription = null,
+                        tint = CyanPrimary,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.width(16.dp))
+
+            // Meal Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = meal.classifiedFoodName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = ImageUtils.formatTimestamp(meal.timestamp, "hh:mm a"),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                if (meal.totalEnergy != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "${String.format("%.0f", meal.totalEnergy)} kcal",
+                        fontSize = 14.sp,
+                        color = OrangeAccent,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Floating, center-aligned bottom navigation bar with a large FAB.
  */
 @Composable
-fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
+fun BottomNavBar(onNavigate: (String) -> Unit, currentRoute: String) {
     var showCaptureOptions by remember { mutableStateOf(false) }
     val navBarHeight = 85.dp
 
@@ -554,6 +717,10 @@ fun BottomNavBar(onNavigate: (String) -> Unit,currentRoute: String) {
             onGallery = {
                 showCaptureOptions = false
                 onNavigate("CaptureScreen/gallery")
+            },
+            onTextInput = {
+                showCaptureOptions = false
+                onNavigate("TextInputScreen")
             }
         )
     }
@@ -598,7 +765,8 @@ fun NavItem(
 fun CaptureOptionsDialog(
     onDismiss: () -> Unit,
     onCamera: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    onTextInput: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -631,7 +799,18 @@ fun CaptureOptionsDialog(
                     Text("Select from Gallery", color = CyanPrimary)
                 }
 
-                // Add extra space before the cancel button
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedButton(
+                    onClick = onTextInput,
+                    modifier = Modifier.fillMaxWidth(),
+                    border = BorderStroke(1.dp, Blue)
+                ) {
+                    Icon(Icons.Default.TextFields, contentDescription = null, tint = Blue)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Discover Through Text Input", color = Blue)
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(onClick = onDismiss) {
@@ -642,11 +821,8 @@ fun CaptureOptionsDialog(
         shape = RoundedCornerShape(20.dp),
         containerColor = BackgroundLight
     )
-
-
 }
 
-// --- Preview Composable ---
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable

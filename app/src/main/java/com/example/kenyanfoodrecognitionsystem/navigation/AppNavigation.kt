@@ -24,6 +24,7 @@ import com.example.kenyanfoodrecognitionsystem.data_models.User
 import com.example.kenyanfoodrecognitionsystem.screens.CaptureScreen
 import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.HomeScreen
 import com.example.kenyanfoodrecognitionsystem.screens.SettingsScreen
+import com.example.kenyanfoodrecognitionsystem.screens.TextInputScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -42,9 +43,17 @@ fun AppNavigation(){
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val startDestination = if (auth.currentUser != null) {
+        // If Firebase has a currently logged-in user, start here
+        "HomeScreen"
+    } else {
+        // Otherwise, start the standard flow
+        "landingScreen"
+    }
+
     NavHost(
         navController = navController,
-        startDestination = "landingScreen"
+        startDestination = startDestination
     ){
         //Landing Screen
         composable("landingScreen"){
@@ -230,6 +239,13 @@ fun AppNavigation(){
             CaptureScreen(
                 initialSource = source, // Pass the source to the CaptureScreen
                 onNavigateBack = navController::popBackStack
+            )
+        }
+
+        //TextInput Screen
+        composable("TextInputScreen") {
+            TextInputScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
