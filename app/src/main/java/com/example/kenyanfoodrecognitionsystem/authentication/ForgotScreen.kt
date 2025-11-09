@@ -29,12 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.ForgotPasswordViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.ForgotPasswordViewModel
 
 @Composable
 fun ForgotScreen(
@@ -108,7 +107,7 @@ fun ForgotScreen(
             )
 
             Text(
-                text = "Please either input your email or phone number",
+                text = "Please enter your email",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -118,11 +117,11 @@ fun ForgotScreen(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text("Email/Phone") },
+                label = { Text("Email") },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Mail,
-                        contentDescription = "Email/Phone Icon",
+                        contentDescription = "Email Icon",
                         modifier = Modifier.size(24.dp)
                     )
                 },
@@ -195,11 +194,3 @@ fun ForgotScreen(
 
 }
 
-@Preview
-@Composable
-fun ForgotPreview(){
-    ForgotScreen(
-        onBackClick = {},
-        onConfirmClick = {}
-    )
-}

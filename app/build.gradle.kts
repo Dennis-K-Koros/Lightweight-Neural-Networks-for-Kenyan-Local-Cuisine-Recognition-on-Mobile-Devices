@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -40,9 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        mlModelBinding = true
     }
     packaging {
         resources {
@@ -57,6 +56,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation("com.google.firebase:firebase-storage")
 
 
     implementation(libs.androidx.core.ktx)
@@ -74,6 +74,10 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -81,6 +85,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 
     implementation("androidx.compose.material:material-icons-extended")
 
@@ -98,5 +103,25 @@ dependencies {
 
     androidTestImplementation("org.mockito:mockito-android:4.8.0")
     androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+
+    // --- TensorFlow Lite Dependencies ---
+    // Core TFLite Support for image and buffer utilities
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+    // Core TFLite Runtime (needed for CPU inference)
+    implementation("org.tensorflow:tensorflow-lite:2.16.1")
+
+    // TFLite GPU delegate (optional, for acceleration)
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
+
+    // TFLite Metadata (needed if you use generated model code)
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
+
+    // Room components
+    implementation ("androidx.room:room-runtime:2.6.1")
+    ksp ("androidx.room:room-compiler:2.6.1")
+
+    // Optional: Kotlin Extensions and Coroutines support for Room
+    implementation ("androidx.room:room-ktx:2.6.1")
 
 }

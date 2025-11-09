@@ -1,6 +1,7 @@
 package com.example.kenyanfoodrecognitionsystem.authentication.view_models
 
 import android.util.Log
+import com.example.kenyanfoodrecognitionsystem.view_models.EmailVerificationViewModel
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth

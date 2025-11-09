@@ -2,6 +2,8 @@ package com.example.kenyanfoodrecognitionsystem.authentication.view_models
 
 import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.kenyanfoodrecognitionsystem.view_models.GoogleAuthUiState
+import com.example.kenyanfoodrecognitionsystem.view_models.GoogleAuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AdditionalUserInfo

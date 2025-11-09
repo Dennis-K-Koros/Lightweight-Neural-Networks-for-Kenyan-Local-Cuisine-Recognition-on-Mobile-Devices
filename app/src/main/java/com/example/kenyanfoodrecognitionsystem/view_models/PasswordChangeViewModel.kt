@@ -1,4 +1,4 @@
-package com.example.kenyanfoodrecognitionsystem.authentication.view_models
+package com.example.kenyanfoodrecognitionsystem.view_models
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-// UI State for the Forgot Password screen
-data class ForgotPasswordUiState(
+data class PasswordChangeUiState(
     val email: String = "",
     val isLoading: Boolean = false,
     val successMessage: String? = null,
@@ -18,18 +17,15 @@ data class ForgotPasswordUiState(
     val emailSent: Boolean = false
 )
 
-// The only change is adding a default parameter to the constructor for testability.
-open class ForgotPasswordViewModel(private val auth: FirebaseAuth = Firebase.auth) : ViewModel() {
+class PasswordChangeViewModel (private val auth: FirebaseAuth = Firebase.auth) : ViewModel() {
+    private val _uiState = MutableStateFlow(PasswordChangeUiState())
+    val uiState: StateFlow<PasswordChangeUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(ForgotPasswordUiState())
-    open val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
-
-    open fun onEmailChange(newEmail: String) {
+    fun onEmailChange(newEmail: String) {
         _uiState.update { it.copy(email = newEmail) }
     }
 
-    // Logic for sending the password reset email
-    open fun onConfirmClick() {
+    fun onConfirmClick() {
         val email = _uiState.value.email.trim()
 
         if (email.isEmpty()) {
@@ -39,7 +35,6 @@ open class ForgotPasswordViewModel(private val auth: FirebaseAuth = Firebase.aut
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
 
-        // Call the Firebase function to send the password reset email
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -54,16 +49,18 @@ open class ForgotPasswordViewModel(private val auth: FirebaseAuth = Firebase.aut
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = task.exception?.message ?: "An unknown error occurred. Please try again.",
+                            errorMessage = task.exception?.message
+                                ?: "An unknown error occurred. Please try again.",
                             emailSent = false
                         )
                     }
                 }
             }
+
+
     }
 
-    // Function to clear messages when the user interacts with the UI
-    open fun clearMessages() {
+    fun clearMessages(){
         _uiState.update { it.copy(errorMessage = null, successMessage = null) }
     }
 }

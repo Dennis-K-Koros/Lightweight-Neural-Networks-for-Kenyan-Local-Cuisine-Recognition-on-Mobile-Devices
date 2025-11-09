@@ -69,8 +69,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.xr.compose.testing.toDp
 import com.example.kenyanfoodrecognitionsystem.R
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.GoogleAuthViewModel
-import com.example.kenyanfoodrecognitionsystem.authentication.view_models.GoogleAuthViewModelFactory
+import com.example.kenyanfoodrecognitionsystem.view_models.GoogleAuthViewModel
+import com.example.kenyanfoodrecognitionsystem.view_models.GoogleAuthViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth

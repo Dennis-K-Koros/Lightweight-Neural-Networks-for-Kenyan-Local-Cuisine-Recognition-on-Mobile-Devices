@@ -1,7 +1,8 @@
-package com.example.kenyanfoodrecognitionsystem.authentication.view_models
+package com.example.kenyanfoodrecognitionsystem.view_models
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.kenyanfoodrecognitionsystem.R // Import the generated resources
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -84,7 +85,7 @@ class GoogleAuthViewModel(
 
 // Factory to provide the ViewModel with dependencies
 class GoogleAuthViewModelFactory(private val context: Context, private val auth: FirebaseAuth) :
-    androidx.lifecycle.ViewModelProvider.Factory {
+    ViewModelProvider.Factory {
 
     private val webClientId: String = context.getString(R.string.default_web_client_id)
 

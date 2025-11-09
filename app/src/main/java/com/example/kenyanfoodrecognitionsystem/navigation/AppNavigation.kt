@@ -1,13 +1,18 @@
 package com.example.kenyanfoodrecognitionsystem.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.kenyanfoodrecognitionsystem.authentication.AuthManager
+import com.example.kenyanfoodrecognitionsystem.authentication.EditingScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.EmailVerificationScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.ForgotScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.LandingScreen
@@ -16,7 +21,10 @@ import com.example.kenyanfoodrecognitionsystem.authentication.SignInScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.SignUpScreen
 import com.example.kenyanfoodrecognitionsystem.authentication.UserVerificationScreen
 import com.example.kenyanfoodrecognitionsystem.data_models.User
-import com.example.kenyanfoodrecognitionsystem.screens.HomeScreen
+import com.example.kenyanfoodrecognitionsystem.screens.CaptureScreen
+import com.example.kenyanfoodrecognitionsystem.screens.Homescreen.HomeScreen
+import com.example.kenyanfoodrecognitionsystem.screens.SettingsScreen
+import com.example.kenyanfoodrecognitionsystem.screens.TextInputScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -24,6 +32,7 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(){
 
@@ -34,9 +43,17 @@ fun AppNavigation(){
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val startDestination = if (auth.currentUser != null) {
+        // If Firebase has a currently logged-in user, start here
+        "HomeScreen"
+    } else {
+        // Otherwise, start the standard flow
+        "landingScreen"
+    }
+
     NavHost(
         navController = navController,
-        startDestination = "landingScreen"
+        startDestination = startDestination
     ){
         //Landing Screen
         composable("landingScreen"){
@@ -185,15 +202,52 @@ fun AppNavigation(){
         composable("PasswordChangeScreen"){
             PasswordChangeScreen(
                 onBackClick = { navController.popBackStack() },
-                onPasswordChangeClick = {}
+                onConfirmClick = {navController.navigate("SettingsScreen")}
             )
         }
 
         //HomeScreen
         composable("HomeScreen"){
-            HomeScreen()
+            HomeScreen(
+                onNavigate = {route -> navController.navigate(route)}
+            )
         }
 
+        //Settings Screen
+        composable("SettingsScreen"){
+            SettingsScreen(
+                onNavigate = {route -> navController.navigate(route)}
+            )
+        }
+
+        //Editing Screen
+        composable("EditingScreen"){
+            EditingScreen(
+                onBackClick = { navController.popBackStack()},
+                onUpdateSuccess = {navController.navigate("SettingsScreen")},
+                onGoogleReAuthRequired = {},
+                snackbarHostState = snackbarHostState
+            )
+        }
+
+        //Capture Screen
+        composable(
+            route = "CaptureScreen/{source}", // Define the route with the argument
+            arguments = listOf(navArgument("source") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: "none"
+            CaptureScreen(
+                initialSource = source, // Pass the source to the CaptureScreen
+                onNavigateBack = navController::popBackStack
+            )
+        }
+
+        //TextInput Screen
+        composable("TextInputScreen") {
+            TextInputScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.kenyanfoodrecognitionsystem.authentication.view_models
 
+import com.example.kenyanfoodrecognitionsystem.view_models.ForgotPasswordViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import io.mockk.every
